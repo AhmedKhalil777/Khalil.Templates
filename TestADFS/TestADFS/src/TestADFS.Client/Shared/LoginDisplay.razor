@@ -1,0 +1,76 @@
+#if (UseADFS)
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject SignOutSessionStateManager SignOutManager
+@inject NavigationManager Navigation
+
+<AuthorizeView>
+    <Authorized>
+        <MudMenu Icon="Icons.Material.Filled.AccountCircle" Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+            <ActivatorContent>
+                <MudIcon Icon="Icons.Material.Filled.AccountCircle" Style="margin-right: 4px;" />
+                <MudText>@context.User.Identity?.Name</MudText>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem OnClick="BeginSignOut">
+                    <MudIcon Icon="Icons.Material.Filled.Logout" Style="margin-right: 8px;" />
+                    Logout
+                </MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </Authorized>
+    <NotAuthorized>
+        <MudButton Href="authentication/login" Variant="Variant.Text" Color="Color.Inherit">
+            <MudIcon Icon="Icons.Material.Filled.Login" Style="margin-right: 4px;" />
+            Login
+        </MudButton>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private async Task BeginSignOut()
+    {
+        await SignOutManager.SetSignOutState();
+        Navigation.NavigateTo("authentication/logout");
+    }
+}
+#else
+<AuthorizeView>
+    <Authorized>
+        <MudMenu Icon="Icons.Material.Filled.AccountCircle" Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+            <ChildContent>
+                <MudText Typo="Typo.subtitle1" Class="px-4 py-2">Hello, @context.User.Identity?.Name!</MudText>
+                <MudDivider />
+                <MudMenuItem Icon="Icons.Material.Filled.AccountBox" OnClick="ManageAccount">
+                    Manage Account
+                </MudMenuItem>
+                <MudMenuItem Icon="Icons.Material.Filled.Logout" OnClick="LogOut">
+                    Log out
+                </MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </Authorized>
+    <NotAuthorized>
+        <MudButton Color="Color.Inherit" StartIcon="Icons.Material.Filled.Login" OnClick="LogIn">
+            Log in
+        </MudButton>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private void LogIn()
+    {
+        // TODO: Implement login logic
+    }
+
+    private void LogOut()
+    {
+        // TODO: Implement logout logic
+    }
+
+    private void ManageAccount()
+    {
+        // TODO: Implement manage account logic
+    }
+}
+#endif 

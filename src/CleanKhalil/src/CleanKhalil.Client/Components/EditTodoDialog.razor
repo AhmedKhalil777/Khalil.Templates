@@ -1,0 +1,122 @@
+@using CleanKhalil.Application.DTOs
+@using CleanKhalil.Domain.Enums
+@inject TodoService TodoService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.h6" Class="mb-4">Edit Todo</MudText>
+        
+        <MudTextField @bind-Value="updateTodo.Title" 
+                      Label="Title" 
+                      Variant="Variant.Outlined" 
+                      Required="true"
+                      Immediate="true"
+                      Class="mb-3" />
+        
+        <MudTextField @bind-Value="updateTodo.Description" 
+                      Label="Description" 
+                      Variant="Variant.Outlined" 
+                      Lines="3"
+                      Class="mb-3" />
+        
+        <MudSelect @bind-Value="updateTodo.Priority" 
+                   Label="Priority" 
+                   Variant="Variant.Outlined"
+                   Class="mb-3">
+            @foreach (var priority in Enum.GetValues<TodoPriority>())
+            {
+                <MudSelectItem Value="priority">@priority</MudSelectItem>
+            }
+        </MudSelect>
+        
+        <MudDatePicker @bind-Date="dueDate" 
+                       Label="Due Date (Optional)" 
+                       Variant="Variant.Outlined"
+                       Class="mb-3" />
+        
+        <MudTextField @bind-Value="updateTodo.Tags" 
+                      Label="Tags (comma separated)" 
+                      Variant="Variant.Outlined"
+                      Class="mb-3" />
+        
+        <MudCheckBox @bind-Value="updateTodo.IsCompleted" 
+                     Label="Completed"
+                     Class="mb-3" />
+    </DialogContent>
+    
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" 
+                   Variant="Variant.Filled" 
+                   OnClick="UpdateTodo"
+                   Disabled="@(string.IsNullOrWhiteSpace(updateTodo.Title) || isUpdating)">
+            @if (isUpdating)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                <MudText Class="ms-2">Updating...</MudText>
+            }
+            else
+            {
+                <MudText>Update</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = null!;
+    [Parameter] public TodoItemDto Todo { get; set; } = null!;
+    [Parameter] public EventCallback OnTodoUpdated { get; set; }
+
+    private UpdateTodoItemDto updateTodo = new();
+    private DateTime? dueDate;
+    private bool isUpdating = false;
+
+    protected override void OnInitialized()
+    {
+        if (Todo != null)
+        {
+            updateTodo = new UpdateTodoItemDto
+            {
+                Title = Todo.Title,
+                Description = Todo.Description,
+                Priority = Todo.Priority,
+                Tags = Todo.Tags,
+                IsCompleted = Todo.IsCompleted
+            };
+            dueDate = Todo.DueDate;
+        }
+    }
+
+    private async Task UpdateTodo()
+    {
+        if (string.IsNullOrWhiteSpace(updateTodo.Title) || Todo == null)
+            return;
+
+        isUpdating = true;
+        
+        try
+        {
+            updateTodo.DueDate = dueDate;
+            await TodoService.UpdateTodoAsync(Todo.Id, updateTodo);
+            
+            Snackbar.Add("Todo updated successfully!", Severity.Success);
+            await OnTodoUpdated.InvokeAsync();
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error updating todo: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isUpdating = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+} 

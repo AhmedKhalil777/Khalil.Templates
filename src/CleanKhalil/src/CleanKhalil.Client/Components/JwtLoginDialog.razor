@@ -1,0 +1,109 @@
+#if (UseJWT)
+@using CleanKhalil.Client.Services
+@inject JwtAuthenticationService AuthService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.h6" Class="mb-4">Login</MudText>
+        
+        <MudTextField @bind-Value="email" 
+                      Label="Email" 
+                      Variant="Variant.Outlined" 
+                      Required="true"
+                      InputType="InputType.Email"
+                      Class="mb-3" />
+        
+        <MudTextField @bind-Value="password" 
+                      Label="Password" 
+                      Variant="Variant.Outlined" 
+                      Required="true"
+                      InputType="InputType.Password"
+                      Class="mb-3" />
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-3">@errorMessage</MudAlert>
+        }
+
+        <MudText Typo="Typo.body2" Class="mb-3 text-center">
+            Demo Credentials:<br/>
+            Admin: admin@example.com / password123<br/>
+            User: user@example.com / password123
+        </MudText>
+    </DialogContent>
+    
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton OnClick="ShowRegister" Color="Color.Secondary">Register</MudButton>
+        <MudButton Color="Color.Primary" 
+                   Variant="Variant.Filled" 
+                   OnClick="Login"
+                   Disabled="@(string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || isLogging)">
+            @if (isLogging)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                <MudText Class="ms-2">Logging in...</MudText>
+            }
+            else
+            {
+                <MudText>Login</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = null!;
+    [Parameter] public EventCallback OnLoginSuccess { get; set; }
+
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private string errorMessage = string.Empty;
+    private bool isLogging = false;
+
+    private async Task Login()
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            return;
+
+        isLogging = true;
+        errorMessage = string.Empty;
+        
+        try
+        {
+            var success = await AuthService.LoginAsync(email, password);
+            
+            if (success)
+            {
+                Snackbar.Add("Login successful!", Severity.Success);
+                await OnLoginSuccess.InvokeAsync();
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            else
+            {
+                errorMessage = "Invalid email or password";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "An error occurred during login";
+            Snackbar.Add($"Login failed: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLogging = false;
+        }
+    }
+
+    private void ShowRegister()
+    {
+        MudDialog.Close(DialogResult.Ok("register"));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}
+#endif 

@@ -1,0 +1,38 @@
+@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Welcome to TestCorp</MudText>
+<MudText Typo="Typo.h6" Class="mb-4">A Clean Architecture Todo Application</MudText>
+
+<MudPaper Class="pa-4 mb-4">
+    <MudText Typo="Typo.h5" GutterBottom="true">Features</MudText>
+    <MudList T="string">
+        <MudListItem T="string" Icon="Icons.Material.Filled.Architecture">
+            Clean Architecture with Onion Architecture pattern
+        </MudListItem>
+        <MudListItem T="string" Icon="Icons.Material.Filled.SendAndArchive">
+            CQRS implementation using MediatR
+        </MudListItem>
+        <MudListItem T="string" Icon="Icons.Material.Filled.WebAsset">
+            Blazor WebAssembly frontend with MudBlazor UI
+        </MudListItem>
+        <MudListItem T="string" Icon="Icons.Material.Filled.Security">
+            OAuth and ADFS authentication support
+        </MudListItem>
+        <MudListItem T="string" Icon="Icons.Material.Filled.Storage">
+            Entity Framework Core with SQL Server
+        </MudListItem>
+    </MudList>
+</MudPaper>
+
+<MudPaper Class="pa-4">
+    <MudText Typo="Typo.h5" GutterBottom="true">Get Started</MudText>
+    <MudText Typo="Typo.body1" Class="mb-3">
+        This is a template project demonstrating clean architecture principles. 
+        Navigate to the Todos section to see the CRUD operations in action.
+    </MudText>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="Icons.Material.Filled.FormatListBulleted" Href="/todos">
+        View Todos
+    </MudButton>
+</MudPaper> 

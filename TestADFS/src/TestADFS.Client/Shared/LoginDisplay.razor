@@ -1,0 +1,38 @@
+<AuthorizeView>
+    <Authorized>
+        <MudMenu Icon="Icons.Material.Filled.AccountCircle" Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+            <ChildContent>
+                <MudText Typo="Typo.subtitle1" Class="px-4 py-2">Hello, @context.User.Identity?.Name!</MudText>
+                <MudDivider />
+                <MudMenuItem Icon="Icons.Material.Filled.AccountBox" OnClick="ManageAccount">
+                    Manage Account
+                </MudMenuItem>
+                <MudMenuItem Icon="Icons.Material.Filled.Logout" OnClick="LogOut">
+                    Log out
+                </MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </Authorized>
+    <NotAuthorized>
+        <MudButton Color="Color.Inherit" StartIcon="Icons.Material.Filled.Login" OnClick="LogIn">
+            Log in
+        </MudButton>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private void LogIn()
+    {
+        // TODO: Implement login logic
+    }
+
+    private void LogOut()
+    {
+        // TODO: Implement logout logic
+    }
+
+    private void ManageAccount()
+    {
+        // TODO: Implement manage account logic
+    }
+} 

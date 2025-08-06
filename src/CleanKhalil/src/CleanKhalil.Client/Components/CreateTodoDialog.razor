@@ -1,0 +1,109 @@
+@using CleanKhalil.Application.DTOs
+@using CleanKhalil.Domain.Enums
+@inject TodoService TodoService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.h6" Class="mb-4">Create New Todo</MudText>
+        
+        <MudTextField @bind-Value="createTodo.Title" 
+                      Label="Title" 
+                      Variant="Variant.Outlined" 
+                      Required="true"
+                      Immediate="true"
+                      Class="mb-3" />
+        
+        <MudTextField @bind-Value="createTodo.Description" 
+                      Label="Description" 
+                      Variant="Variant.Outlined" 
+                      Lines="3"
+                      Class="mb-3" />
+        
+        <MudSelect @bind-Value="createTodo.Priority" 
+                   Label="Priority" 
+                   Variant="Variant.Outlined"
+                   Class="mb-3">
+            @foreach (var priority in Enum.GetValues<TodoPriority>())
+            {
+                <MudSelectItem Value="priority">@priority</MudSelectItem>
+            }
+        </MudSelect>
+        
+        <MudDatePicker @bind-Date="dueDate" 
+                       Label="Due Date (Optional)" 
+                       Variant="Variant.Outlined"
+                       Class="mb-3" />
+        
+        <MudTextField @bind-Value="createTodo.Tags" 
+                      Label="Tags (comma separated)" 
+                      Variant="Variant.Outlined"
+                      Class="mb-3" />
+    </DialogContent>
+    
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" 
+                   Variant="Variant.Filled" 
+                   OnClick="CreateTodo"
+                   Disabled="@(string.IsNullOrWhiteSpace(createTodo.Title) || isCreating)">
+            @if (isCreating)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true"/>
+                <MudText Class="ms-2">Creating...</MudText>
+            }
+            else
+            {
+                <MudText>Create</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = null!;
+    [Parameter] public EventCallback OnTodoCreated { get; set; }
+
+    private CreateTodoItemDto createTodo = new();
+    private DateTime? dueDate;
+    private bool isCreating = false;
+
+    protected override void OnInitialized()
+    {
+        createTodo = new CreateTodoItemDto
+        {
+            Priority = TodoPriority.Medium
+        };
+    }
+
+    private async Task CreateTodo()
+    {
+        if (string.IsNullOrWhiteSpace(createTodo.Title))
+            return;
+
+        isCreating = true;
+        
+        try
+        {
+            createTodo.DueDate = dueDate;
+            await TodoService.CreateTodoAsync(createTodo);
+            
+            Snackbar.Add("Todo created successfully!", Severity.Success);
+            await OnTodoCreated.InvokeAsync();
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error creating todo: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isCreating = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+} 

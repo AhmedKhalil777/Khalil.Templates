@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageType>Template</PackageType>
+    <PackageVersion>1.0.0</PackageVersion>
+    <PackageId>Khalil.Templates</PackageId>
+    <Title>Khalil .NET 8 Templates</Title>
+    <Authors>Khalil Templates</Authors>
+    <Description>Khalil .NET 8 Templates Package containing APISqlKhalil and CleanKhalil templates</Description>
+    <PackageTags>dotnet-new;template;api;blazor;clean-architecture;cqrs;efcore;oauth;adfs;mudblazor</PackageTags>
+    <PackageProjectUrl>https://github.com/khalil/templates</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/khalil/templates</RepositoryUrl>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <NoWarn>NU5128</NoWarn>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="src\**\*.cs;src\**\*.csproj;src\**\*.json;src\**\*.razor;src\**\*.html;src\**\*.css;src\**\*.js;src\**\*.sln" 
+             Exclude="**/bin/**;**/obj/**;**/.vs/**;**/.vscode/**;**/.git/**;**/packages/**;**/*.user;**/*.g.cs;**/*.AssemblyInfo.cs" />
+    <Content Include="src\**\.template.config\**\*" />
+  </ItemGroup>
+
+</Project> 

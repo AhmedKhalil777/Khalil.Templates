@@ -1,0 +1,101 @@
+<div class="todo-list-container">
+  <div class="header">
+    <h1>Todo Management</h1>
+    <button mat-raised-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Add New Todo
+    </button>
+  </div>
+
+  <div class="content" *ngIf="!loading; else loadingTemplate">
+    <div *ngIf="todos.length === 0; else todoTable" class="no-todos">
+      <mat-icon class="large-icon">assignment</mat-icon>
+      <p>No todos found. Create your first todo!</p>
+    </div>
+
+    <ng-template #todoTable>
+      <mat-table [dataSource]="todos" class="todo-table">
+        <!-- Title Column -->
+        <ng-container matColumnDef="title">
+          <mat-header-cell *matHeaderCellDef>Title</mat-header-cell>
+          <mat-cell *matCellDef="let todo">
+            <div class="todo-title">
+              <strong [class.completed]="todo.isCompleted">{{ todo.title }}</strong>
+              <p *ngIf="todo.description" class="todo-description">{{ todo.description }}</p>
+              <div *ngIf="todo.tags" class="todo-tags">
+                <mat-chip-listbox>
+                  <mat-chip *ngFor="let tag of todo.tags.split(',')" class="tag-chip">
+                    {{ tag.trim() }}
+                  </mat-chip>
+                </mat-chip-listbox>
+              </div>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Priority Column -->
+        <ng-container matColumnDef="priority">
+          <mat-header-cell *matHeaderCellDef>Priority</mat-header-cell>
+          <mat-cell *matCellDef="let todo">
+            <mat-chip [color]="getPriorityColor(todo.priority)">
+              {{ getPriorityText(todo.priority) }}
+            </mat-chip>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Due Date Column -->
+        <ng-container matColumnDef="dueDate">
+          <mat-header-cell *matHeaderCellDef>Due Date</mat-header-cell>
+          <mat-cell *matCellDef="let todo">
+            <span *ngIf="todo.dueDate">{{ formatDate(todo.dueDate) }}</span>
+            <span *ngIf="!todo.dueDate" class="no-date">No due date</span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+          <mat-cell *matCellDef="let todo">
+            <mat-chip *ngIf="todo.isCompleted" color="primary">
+              <mat-icon>check_circle</mat-icon>
+              Completed
+            </mat-chip>
+            <mat-chip *ngIf="!todo.isCompleted">
+              <mat-icon>radio_button_unchecked</mat-icon>
+              Pending
+            </mat-chip>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+          <mat-cell *matCellDef="let todo">
+            <button mat-icon-button 
+                    [color]="todo.isCompleted ? 'warn' : 'primary'"
+                    (click)="toggleComplete(todo)"
+                    [matTooltip]="todo.isCompleted ? 'Mark as incomplete' : 'Mark as completed'">
+              <mat-icon>{{ todo.isCompleted ? 'undo' : 'check' }}</mat-icon>
+            </button>
+            <button mat-icon-button color="accent" (click)="openEditDialog(todo)" matTooltip="Edit">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteTodo(todo)" matTooltip="Delete">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+    </ng-template>
+  </div>
+
+  <ng-template #loadingTemplate>
+    <div class="loading">
+      <mat-spinner></mat-spinner>
+      <p>Loading todos...</p>
+    </div>
+  </ng-template>
+</div> 

@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Khalil Templates",
+  "classifications": ["Web", "API", "Blazor", "Angular", "Clean Architecture", "CQRS"],
+  "name": "CleanKhalil Clean Architecture Template",
+  "identity": "CleanKhalil.Template",
+  "shortName": "cleankhalil",
+  "tags": {
+    "language": "C#",
+    "type": "solution"
+  },
+  "sourceName": "CleanKhalil",
+  "preferNameDirectory": true,
+  "symbols": {
+    "UseSqlServer": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "true",
+      "description": "Whether to use SQL Server (true) or LocalDB (false)"
+    },
+    "UseADFS": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Whether to include ADFS authentication"
+    },
+    "UseJWT": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Whether to include JWT authentication"
+    },
+    "UseAngularClient": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Whether to include Angular client instead of Blazor WASM"
+    },
+    "CompanyName": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "YourCompany",
+      "replaces": "CleanKhalil",
+      "description": "Company name for branding"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!UseSqlServer)",
+          "exclude": [
+            "**/SqlServerConfiguration.cs"
+          ]
+        },
+        {
+          "condition": "(!UseADFS)",
+          "exclude": [
+            "**/ADFSConfiguration.cs",
+            "**/adfs-auth.service.ts",
+            "**/auth-callback.component.ts",
+            "**/auth-callback.component.html",
+            "**/auth-callback.component.scss"
+          ]
+        },
+        {
+          "condition": "(!UseJWT)",
+          "exclude": [
+            "**/JwtConfiguration.cs",
+            "**/JwtTokenService.cs",
+            "**/AuthModels.cs",
+            "**/AuthController.cs",
+            "**/JwtAuthenticationService.cs",
+            "**/JwtLoginDialog.razor"
+          ]
+        },
+        {
+          "condition": "(UseAngularClient)",
+          "exclude": [
+            "**/CleanKhalil.Client/**"
+          ]
+        },
+        {
+          "condition": "(!UseAngularClient)",
+          "exclude": [
+            "**/CleanKhalil.AngularClient/**"
+          ]
+        }
+      ]
+    }
+  ]
+} 

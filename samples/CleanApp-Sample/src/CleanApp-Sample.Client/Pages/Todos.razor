@@ -1,0 +1,147 @@
+@page "/todos"
+@using Sample Company.Application.DTOs
+@inject TodoService TodoService
+@inject ISnackbar Snackbar
+
+<PageTitle>Todos</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Todo Management</MudText>
+
+<MudPaper Class="pa-4 mb-4">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
+        Add New Todo
+    </MudButton>
+</MudPaper>
+
+@if (todos == null)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else if (!todos.Any())
+{
+    <MudAlert Severity="Severity.Info">No todos found. Create your first todo!</MudAlert>
+}
+else
+{
+    <MudGrid>
+        @foreach (var todo in todos.OrderByDescending(t => t.CreatedAt))
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard>
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6">@todo.Title</MudText>
+                        @if (!string.IsNullOrEmpty(todo.Description))
+                        {
+                            <MudText Typo="Typo.body2" Class="mb-2">@todo.Description</MudText>
+                        }
+                        <MudChip T="string" Size="Size.Small" Color="GetPriorityColor(todo.Priority)">
+                            @todo.Priority
+                        </MudChip>
+                        @if (todo.DueDate.HasValue)
+                        {
+                            <MudText Typo="Typo.caption" Class="mt-2">
+                                Due: @todo.DueDate.Value.ToString("MMM dd, yyyy")
+                            </MudText>
+                        }
+                        <MudText Typo="Typo.caption">
+                            Created: @todo.CreatedAt.ToString("MMM dd, yyyy")
+                        </MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        @if (!todo.IsCompleted)
+                        {
+                            <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Success" StartIcon="Icons.Material.Filled.Check" OnClick="() => CompleteTodo(todo.Id)">
+                                Complete
+                            </MudButton>
+                        }
+                        else
+                        {
+                            <MudChip T="string" Size="Size.Small" Color="Color.Success" Icon="Icons.Material.Filled.CheckCircle">
+                                Completed
+                            </MudChip>
+                        }
+                        <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Primary" StartIcon="Icons.Material.Filled.Edit" OnClick="() => OpenEditDialog(todo)">
+                            Edit
+                        </MudButton>
+                        <MudButton Size="Size.Small" Variant="Variant.Text" Color="Color.Error" StartIcon="Icons.Material.Filled.Delete" OnClick="() => DeleteTodo(todo.Id)">
+                            Delete
+                        </MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+    private List<TodoItemDto>? todos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTodos();
+    }
+
+    private async Task LoadTodos()
+    {
+        try
+        {
+            todos = (await TodoService.GetAllTodosAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading todos: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private Color GetPriorityColor(Sample Company.Domain.Enums.TodoPriority priority)
+    {
+        return priority switch
+        {
+            Sample Company.Domain.Enums.TodoPriority.Low => Color.Info,
+            Sample Company.Domain.Enums.TodoPriority.Medium => Color.Warning,
+            Sample Company.Domain.Enums.TodoPriority.High => Color.Error,
+            Sample Company.Domain.Enums.TodoPriority.Urgent => Color.Dark,
+            _ => Color.Default
+        };
+    }
+
+    private async Task CompleteTodo(int id)
+    {
+        try
+        {
+            await TodoService.CompleteTodoAsync(id);
+            Snackbar.Add("Todo completed successfully!", Severity.Success);
+            await LoadTodos();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error completing todo: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task DeleteTodo(int id)
+    {
+        try
+        {
+            await TodoService.DeleteTodoAsync(id);
+            Snackbar.Add("Todo deleted successfully!", Severity.Success);
+            await LoadTodos();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error deleting todo: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void OpenCreateDialog()
+    {
+        // TODO: Implement create dialog
+        Snackbar.Add("Create dialog would open here", Severity.Info);
+    }
+
+    private void OpenEditDialog(TodoItemDto todo)
+    {
+        // TODO: Implement edit dialog
+        Snackbar.Add($"Edit dialog for '{todo.Title}' would open here", Severity.Info);
+    }
+} 

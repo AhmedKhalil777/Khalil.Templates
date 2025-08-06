@@ -1,0 +1,114 @@
+#if (UseADFS)
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject SignOutSessionStateManager SignOutManager
+@inject NavigationManager Navigation
+
+<AuthorizeView>
+    <Authorized>
+        <MudMenu Icon="Icons.Material.Filled.AccountCircle" Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+            <ActivatorContent>
+                <MudIcon Icon="Icons.Material.Filled.AccountCircle" Style="margin-right: 4px;" />
+                <MudText>@context.User.Identity?.Name</MudText>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem OnClick="BeginSignOut">
+                    <MudIcon Icon="Icons.Material.Filled.Logout" Style="margin-right: 8px;" />
+                    Logout
+                </MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </Authorized>
+    <NotAuthorized>
+        <MudButton Href="authentication/login" Variant="Variant.Text" Color="Color.Inherit">
+            <MudIcon Icon="Icons.Material.Filled.Login" Style="margin-right: 4px;" />
+            Login
+        </MudButton>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private async Task BeginSignOut()
+    {
+        await SignOutManager.SetSignOutState();
+        Navigation.NavigateTo("authentication/logout");
+    }
+}
+#elif (UseJWT)
+@using CleanKhalil.Client.Services
+@inject JwtAuthenticationService AuthService
+@inject IDialogService DialogService
+
+<AuthorizeView>
+    <Authorized>
+        <MudMenu Icon="Icons.Material.Filled.AccountCircle" Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+            <ActivatorContent>
+                <MudIcon Icon="Icons.Material.Filled.AccountCircle" Style="margin-right: 4px;" />
+                <MudText>@context.User.Identity?.Name</MudText>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem OnClick="Logout">
+                    <MudIcon Icon="Icons.Material.Filled.Logout" Style="margin-right: 8px;" />
+                    Logout
+                </MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </Authorized>
+    <NotAuthorized>
+        <MudButton OnClick="ShowLogin" Variant="Variant.Text" Color="Color.Inherit">
+            <MudIcon Icon="Icons.Material.Filled.Login" Style="margin-right: 4px;" />
+            Login
+        </MudButton>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+    }
+
+    private async Task ShowLogin()
+    {
+        var options = new DialogOptions 
+        { 
+            CloseOnEscapeKey = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true
+        };
+
+        var dialog = DialogService.Show<JwtLoginDialog>("Login", options);
+        await dialog.Result;
+    }
+}
+#else
+<AuthorizeView>
+    <Authorized>
+        <MudMenu Icon="Icons.Material.Filled.AccountCircle" Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+            <ActivatorContent>
+                <MudIcon Icon="Icons.Material.Filled.AccountCircle" Style="margin-right: 4px;" />
+                <MudText>@context.User.Identity?.Name</MudText>
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem OnClick="Logout">
+                    <MudIcon Icon="Icons.Material.Filled.Logout" Style="margin-right: 8px;" />
+                    Logout
+                </MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </Authorized>
+    <NotAuthorized>
+        <MudButton Variant="Variant.Text" Color="Color.Inherit">
+            <MudIcon Icon="Icons.Material.Filled.Login" Style="margin-right: 4px;" />
+            No Auth
+        </MudButton>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private async Task Logout()
+    {
+        // No authentication configured
+    }
+}
+#endif 
